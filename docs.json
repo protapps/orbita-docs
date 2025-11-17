@@ -2,6 +2,8 @@
   "$schema": "https://mintlify.com/docs.json",
   "theme": "mint",
   "name": "Orbita Payment API",
+  "title": "Orbita Payment API - Documentação de Pagamentos",
+  "description": "Documentação completa da API de pagamentos Orbita. Integre PIX, Boleto e Cartão de Crédito na sua aplicação. Guia completo com exemplos práticos e referências de endpoints.",
   "colors": {
     "primary": "#3543F8",
     "light": "#3543F8",
