@@ -296,6 +296,15 @@
             "type": "integer",
             "description": "Quantidade",
             "minimum": 1
+          },
+          "productId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "ID do produto (opcional)"
+          },
+          "product": {
+            "$ref": "#/components/schemas/Product",
+            "description": "Dados completos do produto (opcional)"
           }
         }
       },
@@ -332,81 +341,62 @@
         }
       },
       "PixPaymentResponse": {
-        "type": "object",
-        "properties": {
-          "acquirerTxId": {
-            "type": "string",
-            "description": "ID da transação no adquirente"
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Transaction"
           },
-          "pixQrCode": {
-            "type": "string",
-            "description": "QR Code PIX para pagamento"
-          },
-          "pixCode": {
-            "type": "string",
-            "description": "Código PIX para pagamento"
-          },
-          "transactionId": {
-            "type": "string",
-            "format": "uuid",
-            "description": "ID único da transação"
-          },
-          "status": {
-            "type": "string",
-            "enum": ["pending"],
-            "description": "Status da transação"
+          {
+            "type": "object",
+            "properties": {
+              "transactionId": {
+                "type": "string",
+                "format": "uuid",
+                "description": "ID único da transação (alias para id)"
+              }
+            }
           }
-        }
+        ],
+        "description": "Resposta de pagamento PIX - contém os campos da Transaction com informações específicas de PIX"
       },
       "BoletoPaymentResponse": {
-        "type": "object",
-        "properties": {
-          "acquirerTxId": {
-            "type": "string",
-            "description": "ID da transação no adquirente"
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Transaction"
           },
-          "boletoCode": {
-            "type": "string",
-            "description": "Código de barras do boleto"
-          },
-          "transactionId": {
-            "type": "string",
-            "format": "uuid",
-            "description": "ID único da transação"
-          },
-          "status": {
-            "type": "string",
-            "enum": ["pending"],
-            "description": "Status da transação"
+          {
+            "type": "object",
+            "properties": {
+              "transactionId": {
+                "type": "string",
+                "format": "uuid",
+                "description": "ID único da transação (alias para id)"
+              },
+              "boletoCode": {
+                "type": "string",
+                "description": "Código de barras do boleto (alias para billetCode)"
+              }
+            }
           }
-        }
+        ],
+        "description": "Resposta de pagamento Boleto - contém os campos da Transaction com informações específicas de Boleto"
       },
       "CreditCardPaymentResponse": {
-        "type": "object",
-        "properties": {
-          "acquirerTxId": {
-            "type": "string",
-            "description": "ID da transação no adquirente"
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Transaction"
           },
-          "systemTxId": {
-            "type": "string",
-            "description": "ID da transação no sistema"
-          },
-          "status": {
-            "type": "string",
-            "enum": ["approved", "declined"],
-            "description": "Status da transação"
-          },
-          "endToEnd": {
-            "type": "string",
-            "description": "Identificador end-to-end da transação"
-          },
-          "transactionId": {
-            "type": "string",
-            "format": "uuid",
-            "description": "ID único da transação"
+          {
+            "type": "object",
+            "properties": {
+              "transactionId": {
+                "type": "string",
+                "format": "uuid",
+                "description": "ID único da transação (alias para id)"
+              }
+            }
           }
-        }
+        ],
+        "description": "Resposta de pagamento Cartão de Crédito - contém os campos da Transaction com informações específicas de Cartão"
       },
       "WebhookPayload": {
         "type": "object",
@@ -456,6 +446,189 @@
           "statusCode": {
             "type": "integer",
             "description": "Código HTTP do erro"
+          }
+        }
+      },
+      "Transaction": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "ID único da transação"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "initial",
+              "pending",
+              "approved",
+              "declined",
+              "refund",
+              "chargeback",
+              "expired",
+              "paid",
+              "cancelled"
+            ],
+            "description": "Status da transação"
+          },
+          "amount": {
+            "type": "number",
+            "format": "decimal",
+            "description": "Valor da transação em centavos"
+          },
+          "netAmount": {
+            "type": "number",
+            "format": "decimal",
+            "description": "Valor líquido da transação em centavos"
+          },
+          "method": {
+            "type": "string",
+            "enum": ["pix", "credit_card", "boleto"],
+            "description": "Método de pagamento"
+          },
+          "installments": {
+            "type": "integer",
+            "description": "Número de parcelas",
+            "default": 1
+          },
+          "acquirerTxId": {
+            "type": "string",
+            "description": "ID da transação no adquirente"
+          },
+          "systemTxId": {
+            "type": "string",
+            "description": "ID da transação no sistema"
+          },
+          "pixQrCode": {
+            "type": "string",
+            "description": "QR Code PIX para pagamento"
+          },
+          "pixCode": {
+            "type": "string",
+            "description": "Código PIX para pagamento"
+          },
+          "billetCode": {
+            "type": "string",
+            "description": "Código de barras do boleto"
+          },
+          "billetUrl": {
+            "type": "string",
+            "format": "uri",
+            "description": "URL do boleto"
+          },
+          "endToEnd": {
+            "type": "string",
+            "description": "Identificador end-to-end da transação"
+          },
+          "dateTime": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Data e hora de criação da transação"
+          },
+          "expiresAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Data e hora de expiração do pagamento"
+          },
+          "approvedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Data e hora de aprovação do pagamento"
+          },
+          "paidAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Data e hora de confirmação do pagamento"
+          },
+          "transactionProducts": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TransactionProduct"
+            },
+            "description": "Produtos associados à transação"
+          }
+        }
+      },
+      "TransactionProduct": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "ID único do produto da transação"
+          },
+          "transactionId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "ID da transação"
+          },
+          "productId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "ID do produto"
+          },
+          "quantity": {
+            "type": "integer",
+            "description": "Quantidade do produto",
+            "default": 1,
+            "minimum": 1
+          },
+          "unitPrice": {
+            "type": "number",
+            "format": "decimal",
+            "description": "Preço unitário em centavos"
+          },
+          "totalPrice": {
+            "type": "number",
+            "format": "decimal",
+            "description": "Preço total em centavos"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Data e hora de criação"
+          },
+          "product": {
+            "$ref": "#/components/schemas/Product",
+            "description": "Dados do produto"
+          }
+        }
+      },
+      "Product": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "ID único do produto"
+          },
+          "name": {
+            "type": "string",
+            "description": "Nome do produto"
+          },
+          "description": {
+            "type": "string",
+            "description": "Descrição do produto"
+          },
+          "type": {
+            "type": "string",
+            "enum": ["physical", "digital"],
+            "description": "Tipo do produto (físico ou digital)"
+          },
+          "imageUrl": {
+            "type": "string",
+            "format": "uri",
+            "description": "URL da imagem do produto"
+          },
+          "category": {
+            "type": "string",
+            "description": "Categoria do produto"
+          },
+          "isActive": {
+            "type": "boolean",
+            "description": "Se o produto está ativo",
+            "default": true
           }
         }
       }
