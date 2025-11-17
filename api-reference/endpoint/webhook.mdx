@@ -1,4 +1,82 @@
 ---
-title: 'New Plant'
-openapi: 'WEBHOOK /plant/webhook'
+title: 'Webhooks de Pagamento'
+openapi: 'WEBHOOK /pay/webhook'
 ---
+
+## 🔔 Estrutura do Webhook
+
+O sistema envia webhooks para a `postbackUrl` configurada na requisição de pagamento sempre que o status da transação muda.
+
+### Payload do Webhook
+
+<ParamField body="transactionId" type="string" required>
+  ID único da transação
+</ParamField>
+
+<ParamField body="status" type="string" required>
+  Novo status da transação
+</ParamField>
+
+### Exemplo de Payload
+
+```json
+{
+  "transactionId": "14d486a6-7c9d-4e75-919c-b0a2d1bf49ae",
+  "status": "approved"
+}
+```
+
+---
+
+## 📊 Status Possíveis
+
+| Status | Descrição |
+| --- | --- |
+| `initial` | Transação iniciada |
+| `pending` | Aguardando pagamento |
+| `approved` | Pagamento aprovado |
+| `declined` | Pagamento recusado |
+| `refund` | Estorno processado |
+| `chargeback` | Chargeback realizado |
+| `expired` | Pagamento expirado |
+| `paid` | Pagamento confirmado |
+| `cancelled` | Pagamento cancelado |
+
+---
+
+## 🔧 Configuração
+
+Para receber notificações de mudança de status:
+
+1. Configure uma URL que aceite **POST** requests
+2. Inclua `postbackUrl` na requisição de pagamento
+3. Processe o payload JSON recebido
+4. Retorne status HTTP **200** para confirmar recebimento
+
+### Exemplo de Endpoint de Webhook
+
+```javascript
+// Exemplo em Node.js/Express
+app.post('/webhook', (req, res) => {
+  const { transactionId, status } = req.body;
+  
+  // Processar a mudança de status
+  console.log(`Transação ${transactionId} mudou para status: ${status}`);
+  
+  // Atualizar status no banco de dados
+  // Enviar notificação ao usuário
+  // etc.
+  
+  // Sempre retornar 200 para confirmar recebimento
+  res.status(200).json({ received: true });
+});
+```
+
+---
+
+## ⚠️ Importante
+
+- O webhook será enviado sempre que o status da transação mudar
+- Você deve retornar HTTP 200 para confirmar o recebimento
+- Em caso de falha (timeout ou erro), o sistema pode tentar reenviar o webhook
+- Recomenda-se implementar idempotência no processamento dos webhooks

@@ -1,4 +1,280 @@
 ---
-title: 'Create Plant'
-openapi: 'POST /plants'
+title: 'Criar Pagamento'
+openapi: 'POST /pay/payments'
 ---
+
+## 📋 Estrutura da Requisição
+
+### Payload Principal
+
+<ParamField body="paymentMethod" type="string" required>
+  Método de pagamento: `pix`, `credit_card` ou `boleto`
+</ParamField>
+
+<ParamField body="amount" type="integer" required>
+  Valor em centavos (ex: 10000 = R$ 100,00)
+</ParamField>
+
+<ParamField body="currency" type="string" required>
+  Moeda (sempre "BRL")
+</ParamField>
+
+<ParamField body="paymentDetails" type="object" required>
+  Dados do pagador
+  
+  <ParamField body="paymentDetails.firstName" type="string" required>
+    Nome do pagador
+  </ParamField>
+  
+  <ParamField body="paymentDetails.lastName" type="string" required>
+    Sobrenome do pagador
+  </ParamField>
+  
+  <ParamField body="paymentDetails.document" type="string" required>
+    CPF/CNPJ (apenas números)
+  </ParamField>
+  
+  <ParamField body="paymentDetails.documentType" type="string" required>
+    Tipo do documento: `cpf` ou `cnpj`
+  </ParamField>
+  
+  <ParamField body="paymentDetails.email" type="string" required>
+    E-mail do pagador
+  </ParamField>
+  
+  <ParamField body="paymentDetails.phoneNumber" type="string" required>
+    Telefone (apenas números, sem formatação)
+  </ParamField>
+  
+  <ParamField body="paymentDetails.address" type="object" required>
+    Endereço completo
+    
+    <ParamField body="paymentDetails.address.address1" type="string" required>
+      Endereço linha 1
+    </ParamField>
+    
+    <ParamField body="paymentDetails.address.address2" type="string">
+      Endereço linha 2 (complemento)
+    </ParamField>
+    
+    <ParamField body="paymentDetails.address.neighboor" type="string" required>
+      Bairro
+    </ParamField>
+    
+    <ParamField body="paymentDetails.address.zipCode" type="string" required>
+      CEP (formato: 01234-567)
+    </ParamField>
+    
+    <ParamField body="paymentDetails.address.city" type="string" required>
+      Cidade
+    </ParamField>
+    
+    <ParamField body="paymentDetails.address.state" type="string" required>
+      Estado (UF)
+    </ParamField>
+    
+    <ParamField body="paymentDetails.address.country" type="string" required>
+      País (sempre "BR")
+    </ParamField>
+  </ParamField>
+</ParamField>
+
+<ParamField body="items" type="array">
+  Lista de itens/produtos
+  
+  <ParamField body="items[].tangible" type="boolean">
+    Se o item é físico ou digital
+  </ParamField>
+  
+  <ParamField body="items[].title" type="string">
+    Título do item
+  </ParamField>
+  
+  <ParamField body="items[].unitPrice" type="integer">
+    Preço unitário em centavos
+  </ParamField>
+  
+  <ParamField body="items[].quantity" type="integer">
+    Quantidade
+  </ParamField>
+</ParamField>
+
+<ParamField body="postbackUrl" type="string">
+  URL para receber webhooks de notificação
+</ParamField>
+
+<ParamField body="affiliateId" type="string">
+  ID do afiliado
+</ParamField>
+
+<ParamField body="planId" type="string">
+  ID do plano
+</ParamField>
+
+<ParamField body="userId" type="string">
+  ID do usuário
+</ParamField>
+
+<ParamField body="transactionId" type="string">
+  ID da transação (gerado automaticamente se não informado)
+</ParamField>
+
+---
+
+## 💳 Campos Específicos para Cartão de Crédito
+
+Quando `paymentMethod = "credit_card"`, os seguintes campos são obrigatórios:
+
+<ParamField body="installments" type="integer" required>
+  Número de parcelas (obrigatório para cartão)
+</ParamField>
+
+<ParamField body="creditCard" type="object" required>
+  Dados do cartão de crédito (obrigatório para cartão)
+  
+  <ParamField body="creditCard.cardHolderName" type="string" required>
+    Nome do portador do cartão
+  </ParamField>
+  
+  <ParamField body="creditCard.cardNumber" type="string" required>
+    Número do cartão (apenas números)
+  </ParamField>
+  
+  <ParamField body="creditCard.cardMonth" type="string" required>
+    Mês de expiração (formato: "12")
+  </ParamField>
+  
+  <ParamField body="creditCard.cardYear" type="string" required>
+    Ano de expiração (formato: "25")
+  </ParamField>
+  
+  <ParamField body="creditCard.cardCVV" type="string" required>
+    Código de segurança (CVV)
+  </ParamField>
+</ParamField>
+
+---
+
+## 📤 Respostas da API
+
+### PIX - Resposta de Sucesso
+
+```json
+{
+  "acquirerTxId": "acq-12345",
+  "pixQrCode": "00020126580014BR.GOV.BCB.PIX...",
+  "pixCode": "00020126580014BR.GOV.BCB.PIX...",
+  "transactionId": "14d486a6-7c9d-4e75-919c-b0a2d1bf49ae",
+  "status": "pending"
+}
+```
+
+### Boleto - Resposta de Sucesso
+
+```json
+{
+  "acquirerTxId": "acq-12345",
+  "boletoCode": "34191790010104351004791020150008291070026000",
+  "transactionId": "14d486a6-7c9d-4e75-919c-b0a2d1bf49ae",
+  "status": "pending"
+}
+```
+
+### Cartão de Crédito - Resposta de Sucesso
+
+```json
+{
+  "acquirerTxId": "acq-12345",
+  "systemTxId": "sys-67890",
+  "status": "approved",
+  "endToEnd": "E12345678202412345678901234567890",
+  "transactionId": "14d486a6-7c9d-4e75-919c-b0a2d1bf49ae"
+}
+```
+
+### Exemplo de Resposta de Erro
+
+```json
+{
+  "error": "Validation failed",
+  "message": "creditCard and installments are required when paymentMethod is 'credit_card'",
+  "statusCode": 422
+}
+```
+
+---
+
+## 💡 Exemplos Práticos
+
+### Exemplo 1: Pagamento PIX
+
+```bash
+curl -X POST https://api.orbita.com/pay/payments \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer sua-api-key" \
+  -d '{
+    "paymentMethod": "pix",
+    "amount": 5000,
+    "currency": "BRL",
+    "paymentDetails": {
+      "firstName": "Maria",
+      "lastName": "Santos",
+      "document": "12345678901",
+      "documentType": "cpf",
+      "email": "maria@email.com",
+      "phoneNumber": "11999999999",
+      "address": {
+        "address1": "Av. Paulista, 1000",
+        "neighboor": "Bela Vista",
+        "zipCode": "01310-000",
+        "city": "São Paulo",
+        "state": "SP",
+        "country": "BR"
+      }
+    },
+    "items": [{
+      "tangible": false,
+      "title": "Curso Online",
+      "unitPrice": 5000,
+      "quantity": 1
+    }],
+    "postbackUrl": "https://meusite.com/webhook"
+  }'
+```
+
+### Exemplo 2: Pagamento com Cartão
+
+```bash
+curl -X POST https://api.orbita.com/pay/payments \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer sua-api-key" \
+  -d '{
+    "paymentMethod": "credit_card",
+    "amount": 15000,
+    "currency": "BRL",
+    "installments": 3,
+    "creditCard": {
+      "cardHolderName": "João Silva",
+      "cardNumber": "4111111111111111",
+      "cardMonth": "12",
+      "cardYear": "25",
+      "cardCVV": "123"
+    },
+    "paymentDetails": {
+      "firstName": "João",
+      "lastName": "Silva",
+      "document": "12345678901",
+      "documentType": "cpf",
+      "email": "joao@email.com",
+      "phoneNumber": "11999999999",
+      "address": {
+        "address1": "Rua das Flores, 123",
+        "neighboor": "Centro",
+        "zipCode": "01234-567",
+        "city": "São Paulo",
+        "state": "SP",
+        "country": "BR"
+      }
+    }
+  }'
+```

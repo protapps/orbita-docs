@@ -1,16 +1,14 @@
 {
   "openapi": "3.1.0",
   "info": {
-    "title": "OpenAPI Plant Store",
-    "description": "A sample API that uses a plant store as an example to demonstrate features in the OpenAPI specification",
-    "license": {
-      "name": "MIT"
-    },
+    "title": "Orbita Payment API",
+    "description": "API de pagamentos do Orbita - Suporte para PIX, Boleto e Cartão de Crédito",
     "version": "1.0.0"
   },
   "servers": [
     {
-      "url": "http://sandbox.mintlify.com"
+      "url": "https://api.orbita.com",
+      "description": "Production server"
     }
   ],
   "security": [
@@ -19,72 +17,45 @@
     }
   ],
   "paths": {
-    "/plants": {
-      "get": {
-        "description": "Returns all plants from the system that the user has access to",
-        "parameters": [
-          {
-            "name": "limit",
-            "in": "query",
-            "description": "The maximum number of results to return",
-            "schema": {
-              "type": "integer",
-              "format": "int32"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Plant response",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/Plant"
-                  }
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Unexpected error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            }
-          }
-        }
-      },
+    "/pay/payments": {
       "post": {
-        "description": "Creates a new plant in the store",
+        "summary": "Criar novo pagamento",
+        "description": "Inicializa um novo pagamento através de PIX, Boleto ou Cartão de Crédito",
+        "operationId": "createPayment",
         "requestBody": {
-          "description": "Plant to add to the store",
+          "description": "Dados do pagamento",
+          "required": true,
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/NewPlant"
+                "$ref": "#/components/schemas/PaymentRequest"
               }
             }
-          },
-          "required": true
+          }
         },
         "responses": {
           "200": {
-            "description": "plant response",
+            "description": "Pagamento criado com sucesso",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/Plant"
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/PixPaymentResponse"
+                    },
+                    {
+                      "$ref": "#/components/schemas/BoletoPaymentResponse"
+                    },
+                    {
+                      "$ref": "#/components/schemas/CreditCardPaymentResponse"
+                    }
+                  ]
                 }
               }
             }
           },
           "400": {
-            "description": "unexpected error",
+            "description": "Dados inválidos na requisição",
             "content": {
               "application/json": {
                 "schema": {
@@ -92,32 +63,29 @@
                 }
               }
             }
-          }
-        }
-      }
-    },
-    "/plants/{id}": {
-      "delete": {
-        "description": "Deletes a single plant based on the ID supplied",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "description": "ID of plant to delete",
-            "required": true,
-            "schema": {
-              "type": "integer",
-              "format": "int64"
-            }
-          }
-        ],
-        "responses": {
-          "204": {
-            "description": "Plant deleted",
-            "content": {}
           },
-          "400": {
-            "description": "unexpected error",
+          "401": {
+            "description": "API Key inválida ou ausente",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Erro de validação dos dados",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Erro interno do servidor",
             "content": {
               "application/json": {
                 "schema": {
@@ -131,22 +99,24 @@
     }
   },
   "webhooks": {
-    "/plant/webhook": {
+    "/pay/webhook": {
       "post": {
-        "description": "Information about a new plant added to the store",
+        "summary": "Webhook de notificação de pagamento",
+        "description": "Webhook enviado quando o status de uma transação muda",
         "requestBody": {
-          "description": "Plant added to the store",
+          "description": "Dados do webhook",
+          "required": true,
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/NewPlant"
+                "$ref": "#/components/schemas/WebhookPayload"
               }
             }
           }
         },
         "responses": {
           "200": {
-            "description": "Return a 200 status to indicate that the data was received successfully"
+            "description": "Webhook recebido com sucesso"
           }
         }
       }
@@ -154,55 +124,338 @@
   },
   "components": {
     "schemas": {
-      "Plant": {
-        "required": [
-          "name"
-        ],
+      "PaymentRequest": {
         "type": "object",
+        "required": [
+          "paymentMethod",
+          "amount",
+          "currency",
+          "paymentDetails"
+        ],
         "properties": {
-          "name": {
-            "description": "The name of the plant",
-            "type": "string"
+          "paymentMethod": {
+            "type": "string",
+            "enum": ["pix", "credit_card", "boleto"],
+            "description": "Método de pagamento"
           },
-          "tag": {
-            "description": "Tag to specify the type",
-            "type": "string"
+          "amount": {
+            "type": "integer",
+            "description": "Valor em centavos (ex: 10000 = R$ 100,00)",
+            "minimum": 1
+          },
+          "currency": {
+            "type": "string",
+            "enum": ["BRL"],
+            "description": "Moeda",
+            "default": "BRL"
+          },
+          "paymentDetails": {
+            "$ref": "#/components/schemas/PaymentDetails"
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Item"
+            },
+            "description": "Lista de itens/produtos"
+          },
+          "postbackUrl": {
+            "type": "string",
+            "format": "uri",
+            "description": "URL para receber webhooks de notificação"
+          },
+          "affiliateId": {
+            "type": "string",
+            "description": "ID do afiliado"
+          },
+          "planId": {
+            "type": "string",
+            "description": "ID do plano"
+          },
+          "userId": {
+            "type": "string",
+            "description": "ID do usuário"
+          },
+          "transactionId": {
+            "type": "string",
+            "description": "ID da transação (gerado automaticamente se não informado)"
+          },
+          "installments": {
+            "type": "integer",
+            "description": "Número de parcelas (obrigatório para cartão de crédito)",
+            "minimum": 1
+          },
+          "creditCard": {
+            "$ref": "#/components/schemas/CreditCard",
+            "description": "Dados do cartão de crédito (obrigatório quando paymentMethod = credit_card)"
           }
         }
       },
-      "NewPlant": {
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/Plant"
-          },
-          {
-            "required": [
-              "id"
-            ],
-            "type": "object",
-            "properties": {
-              "id": {
-                "description": "Identification number of the plant",
-                "type": "integer",
-                "format": "int64"
-              }
-            }
-          }
-        ]
-      },
-      "Error": {
+      "PaymentDetails": {
+        "type": "object",
         "required": [
-          "error",
-          "message"
+          "firstName",
+          "lastName",
+          "document",
+          "documentType",
+          "email",
+          "phoneNumber",
+          "address"
         ],
+        "properties": {
+          "firstName": {
+            "type": "string",
+            "description": "Nome do pagador"
+          },
+          "lastName": {
+            "type": "string",
+            "description": "Sobrenome do pagador"
+          },
+          "document": {
+            "type": "string",
+            "description": "CPF/CNPJ (apenas números)"
+          },
+          "documentType": {
+            "type": "string",
+            "enum": ["cpf", "cnpj"],
+            "description": "Tipo do documento"
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "description": "E-mail do pagador"
+          },
+          "phoneNumber": {
+            "type": "string",
+            "description": "Telefone (apenas números, sem formatação)"
+          },
+          "address": {
+            "$ref": "#/components/schemas/Address"
+          }
+        }
+      },
+      "Address": {
+        "type": "object",
+        "required": [
+          "address1",
+          "neighboor",
+          "zipCode",
+          "city",
+          "state",
+          "country"
+        ],
+        "properties": {
+          "address1": {
+            "type": "string",
+            "description": "Endereço linha 1"
+          },
+          "address2": {
+            "type": "string",
+            "description": "Endereço linha 2 (complemento)"
+          },
+          "neighboor": {
+            "type": "string",
+            "description": "Bairro"
+          },
+          "zipCode": {
+            "type": "string",
+            "description": "CEP (formato: 01234-567)"
+          },
+          "city": {
+            "type": "string",
+            "description": "Cidade"
+          },
+          "state": {
+            "type": "string",
+            "description": "Estado (UF)"
+          },
+          "country": {
+            "type": "string",
+            "enum": ["BR"],
+            "description": "País",
+            "default": "BR"
+          }
+        }
+      },
+      "Item": {
         "type": "object",
         "properties": {
-          "error": {
+          "tangible": {
+            "type": "boolean",
+            "description": "Se o item é físico ou digital"
+          },
+          "title": {
+            "type": "string",
+            "description": "Título do item"
+          },
+          "unitPrice": {
             "type": "integer",
-            "format": "int32"
+            "description": "Preço unitário em centavos"
+          },
+          "quantity": {
+            "type": "integer",
+            "description": "Quantidade",
+            "minimum": 1
+          }
+        }
+      },
+      "CreditCard": {
+        "type": "object",
+        "required": [
+          "cardHolderName",
+          "cardNumber",
+          "cardMonth",
+          "cardYear",
+          "cardCVV"
+        ],
+        "properties": {
+          "cardHolderName": {
+            "type": "string",
+            "description": "Nome do portador do cartão"
+          },
+          "cardNumber": {
+            "type": "string",
+            "description": "Número do cartão (apenas números)"
+          },
+          "cardMonth": {
+            "type": "string",
+            "description": "Mês de expiração (formato: 12)"
+          },
+          "cardYear": {
+            "type": "string",
+            "description": "Ano de expiração (formato: 25)"
+          },
+          "cardCVV": {
+            "type": "string",
+            "description": "Código de segurança (CVV)"
+          }
+        }
+      },
+      "PixPaymentResponse": {
+        "type": "object",
+        "properties": {
+          "acquirerTxId": {
+            "type": "string",
+            "description": "ID da transação no adquirente"
+          },
+          "pixQrCode": {
+            "type": "string",
+            "description": "QR Code PIX para pagamento"
+          },
+          "pixCode": {
+            "type": "string",
+            "description": "Código PIX para pagamento"
+          },
+          "transactionId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "ID único da transação"
+          },
+          "status": {
+            "type": "string",
+            "enum": ["pending"],
+            "description": "Status da transação"
+          }
+        }
+      },
+      "BoletoPaymentResponse": {
+        "type": "object",
+        "properties": {
+          "acquirerTxId": {
+            "type": "string",
+            "description": "ID da transação no adquirente"
+          },
+          "boletoCode": {
+            "type": "string",
+            "description": "Código de barras do boleto"
+          },
+          "transactionId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "ID único da transação"
+          },
+          "status": {
+            "type": "string",
+            "enum": ["pending"],
+            "description": "Status da transação"
+          }
+        }
+      },
+      "CreditCardPaymentResponse": {
+        "type": "object",
+        "properties": {
+          "acquirerTxId": {
+            "type": "string",
+            "description": "ID da transação no adquirente"
+          },
+          "systemTxId": {
+            "type": "string",
+            "description": "ID da transação no sistema"
+          },
+          "status": {
+            "type": "string",
+            "enum": ["approved", "declined"],
+            "description": "Status da transação"
+          },
+          "endToEnd": {
+            "type": "string",
+            "description": "Identificador end-to-end da transação"
+          },
+          "transactionId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "ID único da transação"
+          }
+        }
+      },
+      "WebhookPayload": {
+        "type": "object",
+        "required": [
+          "transactionId",
+          "status"
+        ],
+        "properties": {
+          "transactionId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "ID único da transação"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "initial",
+              "pending",
+              "approved",
+              "declined",
+              "refund",
+              "chargeback",
+              "expired",
+              "paid",
+              "cancelled"
+            ],
+            "description": "Status da transação"
+          }
+        }
+      },
+      "Error": {
+        "type": "object",
+        "required": [
+          "error",
+          "message",
+          "statusCode"
+        ],
+        "properties": {
+          "error": {
+            "type": "string",
+            "description": "Tipo do erro"
           },
           "message": {
-            "type": "string"
+            "type": "string",
+            "description": "Mensagem de erro"
+          },
+          "statusCode": {
+            "type": "integer",
+            "description": "Código HTTP do erro"
           }
         }
       }
@@ -210,7 +463,9 @@
     "securitySchemes": {
       "bearerAuth": {
         "type": "http",
-        "scheme": "bearer"
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "description": "API_KEY gerada dentro da plataforma em https://app-v2.orbitapay.com.br/apps"
       }
     }
   }

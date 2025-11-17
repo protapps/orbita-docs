@@ -1,28 +1,137 @@
 ---
-title: 'Introduction'
-description: 'Example section for showcasing API endpoints'
+title: 'Documentação API'
+description: 'API de Pagamentos - Documentação completa'
 ---
 
-<Note>
-  If you're not looking to build API reference documentation, you can delete
-  this section by removing the api-reference folder.
-</Note>
+# 📱 API de Pagamentos - Documentação
 
-## Welcome
+## Visão Geral
 
-There are two ways to build API documentation: [OpenAPI](https://mintlify.com/docs/api-playground/openapi/setup) and [MDX components](https://mintlify.com/docs/api-playground/mdx/configuration). For the starter kit, we are using the following OpenAPI specification.
+A API de pagamentos do Orbita permite processar pagamentos através de múltiplos métodos: **PIX**, **Boleto** e **Cartão de Crédito**. O sistema suporta diferentes adquirentes e oferece webhooks para notificações de status.
 
-<Card
-  title="Plant Store Endpoints"
-  icon="leaf"
-  href="https://github.com/mintlify/starter/blob/main/api-reference/openapi.json"
->
-  View the OpenAPI specification file
-</Card>
+---
+
+## 🔗 Endpoint Principal
+
+### **POST** `/pay/payments`
+
+Inicializa um novo pagamento. API_KEY gerada dentro da plataforma em https://app-v2.orbitapay.com.br/apps
+
+**Headers Obrigatórios:**
+
+```
+Content-Type: application/json
+Authorization: Bearer {API_KEY}
+```
+
+---
+
+## ✅ Campos Obrigatórios e Opcionais
+
+### Obrigatórios
+
+- `paymentMethod` - Método de pagamento
+- `amount` - Valor em centavos (ex: 10000 = R$ 100,00)
+- `currency` - Moeda (sempre "BRL")
+- `paymentDetails` - Dados do pagador
+    - `firstName` - Nome
+    - `lastName` - Sobrenome
+    - `document` - CPF/CNPJ
+    - `documentType` - Tipo do documento
+    - `email` - E-mail
+    - `phoneNumber` - Telefone
+    - `address` - Endereço completo
+
+### Opcionais
+
+- `userId` - ID do usuário
+- `transactionId` - ID da transação (gerado automaticamente se não informado)
+- `shipping.fee` - Taxa de envio
+- `items` - Lista de itens/produtos
+- `postbackUrl` - URL para receber webhooks
+- `affiliateId` - ID do afiliado
+- `planId` - ID do plano
+
+### Condicionalmente Obrigatórios
+
+- `installments` e `creditCard` - Obrigatórios quando `paymentMethod = "credit_card"`
+
+---
+
+## 🔔 Webhooks
+
+O sistema envia webhooks para `postbackUrl` quando o status da transação muda. O webhook contém `transactionId` e o novo `status`.
+
+### Status Possíveis
+
+| Status | Descrição |
+| --- | --- |
+| `initial` | Transação iniciada |
+| `pending` | Aguardando pagamento |
+| `approved` | Pagamento aprovado |
+| `declined` | Pagamento recusado |
+| `refund` | Estorno processado |
+| `chargeback` | Chargeback realizado |
+| `expired` | Pagamento expirado |
+| `paid` | Pagamento confirmado |
+| `cancelled` | Pagamento cancelado |
+
+---
+
+## 🔄 Fluxo de Pagamento
+
+### 1. Inicialização
+
+- **POST** `/pay/payments` com dados do pagamento
+- Sistema valida dados e cria transação
+- Retorna informações específicas do método escolhido
+
+### 2. Processamento
+
+- **PIX**: Gera QR Code e código PIX para pagamento
+- **Boleto**: Gera código de barras do boleto
+- **Cartão**: Processa pagamento imediatamente
+
+### 3. Notificação
+
+- Sistema envia webhook para `postbackUrl` quando status muda
+- Webhook contém `transactionId` e novo `status`
+
+---
+
+## ⚠️ Códigos de Erro
+
+| Código | Descrição |
+| --- | --- |
+| `400` | Dados inválidos na requisição |
+| `401` | API Key inválida ou ausente |
+| `422` | Erro de validação dos dados |
+| `500` | Erro interno do servidor |
+
+---
+
+## 🔧 Configuração de Webhook
+
+Para receber notificações de mudança de status:
+
+1. Configure uma URL que aceite **POST** requests
+2. Inclua `postbackUrl` na requisição de pagamento
+3. Processe o payload JSON recebido
+4. Retorne status HTTP **200** para confirmar recebimento
+
+---
+
+## 📝 Observações Importantes
+
+- **Valores**: Sempre informar em centavos (ex: R$ 100,00 = 10000)
+- **Telefone**: Apenas números, sem formatação
+- **Documentos**: CPF com 11 dígitos, CNPJ com 14 dígitos
+
+---
 
 ## Authentication
 
-All API endpoints are authenticated using Bearer tokens and picked up from the specification file.
+All API endpoints are authenticated using Bearer tokens. Your API_KEY can be generated in the platform at https://app-v2.orbitapay.com.br/apps
 
 ```json
 "security": [
