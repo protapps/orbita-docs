@@ -1,97 +1,121 @@
 ---
-title: "Introduction"
-description: "Welcome to the new home for your documentation"
+title: "Orbita Payment API"
+description: "Documentação completa da API de pagamentos Orbita - PIX, Boleto e Cartão de Crédito"
 ---
 
-## Setting up
+# Bem-vindo à Orbita Payment API
 
-Get your documentation site up and running in minutes.
+A **Orbita Payment API** é uma solução completa de pagamentos que permite processar transações através de múltiplos métodos: **PIX**, **Boleto** e **Cartão de Crédito**. Integre pagamentos de forma simples e segura na sua aplicação.
+
+---
+
+## 🚀 Começando
 
 <Card
-  title="Start here"
-  icon="rocket"
-  href="/quickstart"
+  title="Documentação da API"
+  icon="book"
+  href="/api-reference/introduction"
   horizontal
 >
-  Follow our three step quickstart guide.
+  Acesse a documentação completa da API com exemplos práticos e referências detalhadas.
 </Card>
 
-## Make it yours
+---
 
-Design a docs site that looks great and empowers your users.
+## 💳 Métodos de Pagamento
+
+A Orbita suporta os principais métodos de pagamento do Brasil:
+
+<Columns cols={3}>
+  <Card
+    title="PIX"
+    icon="bolt"
+  >
+    Pagamentos instantâneos 24/7 com QR Code e código PIX.
+  </Card>
+  <Card
+    title="Boleto"
+    icon="file-invoice"
+  >
+    Geração automática de boletos bancários com código de barras.
+  </Card>
+  <Card
+    title="Cartão de Crédito"
+    icon="credit-card"
+  >
+    Processamento seguro com suporte a parcelamento.
+  </Card>
+</Columns>
+
+---
+
+## 🔗 Links Úteis
 
 <Columns cols={2}>
   <Card
-    title="Edit locally"
-    icon="pen-to-square"
-    href="/development"
+    title="Painel de Controle"
+    icon="grid-3x3"
+    href="https://app-v2.orbitapay.com.br"
   >
-    Edit your docs locally and preview them in real time.
+    Acesse o painel para gerenciar suas transações, gerar API Keys e acompanhar seus pagamentos.
   </Card>
   <Card
-    title="Customize your site"
-    icon="palette"
-    href="/essentials/settings"
+    title="Criar API Key"
+    icon="key"
+    href="https://app-v2.orbitapay.com.br/apps"
   >
-    Customize the design and colors of your site to match your brand.
-  </Card>
-    <Card
-    title="Set up navigation"
-    icon="map"
-    href="/essentials/navigation"
-  >
-    Organize your docs to help users find what they need and succeed with your product.
+    Gere sua API Key para começar a integrar pagamentos na sua aplicação.
   </Card>
   <Card
-    title="API documentation"
-    icon="terminal"
+    title="Documentação da API"
+    icon="code"
     href="/api-reference/introduction"
   >
-    Auto-generate API documentation from OpenAPI specifications.
+    Explore a documentação completa com exemplos de código e referências de endpoints.
+  </Card>
+  <Card
+    title="Criar Pagamento"
+    icon="plus-circle"
+    href="/api-reference/endpoint/create"
+  >
+    Aprenda como criar pagamentos através do endpoint POST /pay/payments.
   </Card>
 </Columns>
 
-## Create beautiful pages
+---
 
-Everything you need to create world-class documentation.
+## 📚 Recursos
 
-<Columns cols={2}>
-  <Card
-    title="Write with MDX"
-    icon="pen-fancy"
-    href="/essentials/markdown"
-  >
-    Use MDX to style your docs pages.
-  </Card>
-  <Card
-    title="Code samples"
-    icon="code"
-    href="/essentials/code"
-  >
-    Add sample code to demonstrate how to use your product.
-  </Card>
-  <Card
-    title="Images"
-    icon="image"
-    href="/essentials/images"
-  >
-    Display images and other media.
-  </Card>
-  <Card
-    title="Reusable snippets"
-    icon="recycle"
-    href="/essentials/reusable-snippets"
-  >
-    Write once and reuse across your docs.
-  </Card>
-</Columns>
+### Documentação
 
-## Need inspiration?
+- **[Introdução à API](/api-reference/introduction)** - Visão geral e conceitos fundamentais
+- **[Criar Pagamento](/api-reference/endpoint/create)** - Como processar pagamentos
+- **[Webhooks](/api-reference/endpoint/webhook)** - Configurar notificações de status
 
-<Card
-  title="See complete examples"
-  icon="stars"
-  href="https://mintlify.com/customers"
->
-  Browse our showcase of exceptional documentation sites.
-</Card>
+### Ferramentas
+
+- **[Painel Orbita](https://app-v2.orbitapay.com.br)** - Gerenciamento completo de transações
+- **[Gerar API Key](https://app-v2.orbitapay.com.br/apps)** - Obtenha suas credenciais de acesso
+
+---
+
+## ⚡ Início Rápido
+
+1. **Crie sua conta** no [Painel Orbita](https://app-v2.orbitapay.com.br)
+2. **Gere sua API Key** em [Apps](https://app-v2.orbitapay.com.br/apps)
+3. **Consulte a documentação** para integrar pagamentos
+4. **Configure webhooks** para receber notificações de status
+
+---
+
+## 🔔 Webhooks
+
+Configure webhooks para receber notificações em tempo real sobre mudanças de status das suas transações. Saiba mais em [Webhooks de Pagamento](/api-reference/endpoint/webhook).
+
+---
+
+## 💡 Precisa de Ajuda?
+
+- Consulte a [documentação completa](/api-reference/introduction)
+- Entre em contato através do [Suporte](mailto:suporte@orbitapay.com.br)
+- Acesse o [Painel](https://app-v2.orbitapay.com.br) para gerenciar sua conta
