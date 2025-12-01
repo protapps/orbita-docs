@@ -7,7 +7,7 @@
   },
   "servers": [
     {
-      "url": "https://api.orbita.com",
+      "url": "https://api-v2.orbitapay.com.br",
       "description": "Production server"
     }
   ],
