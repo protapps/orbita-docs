@@ -424,6 +424,68 @@
               "cancelled"
             ],
             "description": "Status da transação"
+          },
+          "customer": {
+            "type": "object",
+            "properties": {
+              "email": {
+                "type": "string",
+                "format": "email",
+                "description": "E-mail do cliente"
+              },
+              "name": {
+                "type": "string",
+                "description": "Nome completo do cliente"
+              },
+              "document": {
+                "type": "string",
+                "description": "CPF/CNPJ do cliente"
+              },
+              "phone": {
+                "type": "string",
+                "description": "Telefone do cliente"
+              }
+            }
+          },
+          "amount": {
+            "type": "number",
+            "format": "decimal",
+            "description": "Valor da transação em centavos"
+          },
+          "currency": {
+            "type": "string",
+            "enum": ["BRL"],
+            "description": "Moeda da transação",
+            "default": "BRL"
+          },
+          "paymentMethod": {
+            "type": "string",
+            "description": "Método de pagamento utilizado"
+          },
+          "utm": {
+            "type": "object",
+            "properties": {
+              "source": {
+                "type": "string",
+                "description": "UTM Source"
+              },
+              "medium": {
+                "type": "string",
+                "description": "UTM Medium"
+              },
+              "campaign": {
+                "type": "string",
+                "description": "UTM Campaign"
+              },
+              "term": {
+                "type": "string",
+                "description": "UTM Term"
+              },
+              "content": {
+                "type": "string",
+                "description": "UTM Content"
+              }
+            }
           }
         }
       },

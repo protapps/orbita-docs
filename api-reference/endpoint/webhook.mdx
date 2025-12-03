@@ -17,12 +17,84 @@ O sistema envia webhooks para a `postbackUrl` configurada na requisição de pag
   Novo status da transação
 </ParamField>
 
+<ParamField body="customer" type="object">
+  Dados do cliente
+  
+  <ParamField body="customer.email" type="string">
+    E-mail do cliente
+  </ParamField>
+  
+  <ParamField body="customer.name" type="string">
+    Nome completo do cliente
+  </ParamField>
+  
+  <ParamField body="customer.document" type="string">
+    CPF/CNPJ do cliente
+  </ParamField>
+  
+  <ParamField body="customer.phone" type="string">
+    Telefone do cliente
+  </ParamField>
+</ParamField>
+
+<ParamField body="amount" type="number">
+  Valor da transação em centavos
+</ParamField>
+
+<ParamField body="currency" type="string">
+  Moeda da transação (sempre "BRL")
+</ParamField>
+
+<ParamField body="paymentMethod" type="string">
+  Método de pagamento utilizado
+</ParamField>
+
+<ParamField body="utm" type="object">
+  Dados de rastreamento UTM
+  
+  <ParamField body="utm.source" type="string">
+    UTM Source
+  </ParamField>
+  
+  <ParamField body="utm.medium" type="string">
+    UTM Medium
+  </ParamField>
+  
+  <ParamField body="utm.campaign" type="string">
+    UTM Campaign
+  </ParamField>
+  
+  <ParamField body="utm.term" type="string">
+    UTM Term
+  </ParamField>
+  
+  <ParamField body="utm.content" type="string">
+    UTM Content
+  </ParamField>
+</ParamField>
+
 ### Exemplo de Payload
 
 ```json
 {
   "transactionId": "14d486a6-7c9d-4e75-919c-b0a2d1bf49ae",
-  "status": "approved"
+  "status": "approved",
+  "customer": {
+    "email": "joao@email.com",
+    "name": "João Silva",
+    "document": "12345678901",
+    "phone": "11999999999"
+  },
+  "amount": 10000,
+  "currency": "BRL",
+  "paymentMethod": "credit_card",
+  "utm": {
+    "source": "google",
+    "medium": "cpc",
+    "campaign": "summer_sale",
+    "term": "pagamentos",
+    "content": "ad_variant_1"
+  }
 }
 ```
 
@@ -58,13 +130,25 @@ Para receber notificações de mudança de status:
 ```javascript
 // Exemplo em Node.js/Express
 app.post('/webhook', (req, res) => {
-  const { transactionId, status } = req.body;
+  const { 
+    transactionId, 
+    status, 
+    customer, 
+    amount, 
+    currency, 
+    paymentMethod,
+    utm 
+  } = req.body;
   
   // Processar a mudança de status
   console.log(`Transação ${transactionId} mudou para status: ${status}`);
+  console.log(`Cliente: ${customer?.name} (${customer?.email})`);
+  console.log(`Valor: R$ ${(amount / 100).toFixed(2)}`);
+  console.log(`Método: ${paymentMethod}`);
   
   // Atualizar status no banco de dados
   // Enviar notificação ao usuário
+  // Processar dados UTM para analytics
   // etc.
   
   // Sempre retornar 200 para confirmar recebimento
