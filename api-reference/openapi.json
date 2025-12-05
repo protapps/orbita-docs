@@ -164,14 +164,6 @@
             "format": "uri",
             "description": "URL para receber webhooks de notificação"
           },
-          "affiliateId": {
-            "type": "string",
-            "description": "ID do afiliado"
-          },
-          "planId": {
-            "type": "string",
-            "description": "ID do plano"
-          },
           "userId": {
             "type": "string",
             "description": "ID do usuário"
