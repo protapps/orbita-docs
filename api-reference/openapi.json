@@ -295,15 +295,6 @@
             "type": "integer",
             "description": "Quantidade",
             "minimum": 1
-          },
-          "productId": {
-            "type": "string",
-            "format": "uuid",
-            "description": "ID do produto (opcional)"
-          },
-          "product": {
-            "$ref": "#/components/schemas/Product",
-            "description": "Dados completos do produto (opcional)"
           }
         }
       },
