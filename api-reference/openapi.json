@@ -188,6 +188,13 @@
           "creditCard": {
             "$ref": "#/components/schemas/CreditCard",
             "description": "Dados do cartão de crédito (obrigatório quando paymentMethod = credit_card)"
+          },
+          "splits": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Split"
+            },
+            "description": "Lista de splits para divisão de pagamento entre co-produtores"
           }
         }
       },
@@ -305,6 +312,26 @@
           "product": {
             "$ref": "#/components/schemas/Product",
             "description": "Dados completos do produto (opcional)"
+          }
+        }
+      },
+      "Split": {
+        "type": "object",
+        "required": [
+          "coProducerEmail",
+          "percentage"
+        ],
+        "properties": {
+          "coProducerEmail": {
+            "type": "string",
+            "format": "email",
+            "description": "E-mail do co-produtor"
+          },
+          "percentage": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 99,
+            "description": "Porcentagem do split (máximo 99%)"
           }
         }
       },

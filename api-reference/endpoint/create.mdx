@@ -119,6 +119,29 @@ openapi: 'POST /pay/payments'
   ID da transação (gerado automaticamente se não informado)
 </ParamField>
 
+<ParamField body="splits" type="array">
+  Lista de splits para divisão de pagamento entre co-produtores
+  
+  <ParamField body="splits[].coProducerEmail" type="string">
+    E-mail do co-produtor
+  </ParamField>
+  
+  <ParamField body="splits[].percentage" type="number">
+    Porcentagem do split (máximo 99%)
+  </ParamField>
+</ParamField>
+
+---
+
+## 💰 Splits de Pagamento
+
+O campo `splits` permite dividir o valor da transação entre co-produtores. Cada split deve conter:
+
+- **coProducerEmail**: E-mail do co-produtor
+- **percentage**: Porcentagem do valor total (máximo 99% por split)
+
+A soma das porcentagens de todos os splits não deve exceder 99%.
+
 ---
 
 ## 💳 Campos Específicos para Cartão de Crédito
@@ -276,5 +299,48 @@ curl -X POST https://api-v2.orbitapay.com.br/pay/payments \
         "country": "BR"
       }
     }
+  }'
+```
+
+### Exemplo 3: Pagamento com Splits
+
+```bash
+curl -X POST https://api-v2.orbitapay.com.br/pay/payments \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer sua-api-key" \
+  -d '{
+    "paymentMethod": "pix",
+    "amount": 10000,
+    "currency": "BRL",
+    "paymentDetails": {
+      "firstName": "Carlos",
+      "lastName": "Oliveira",
+      "document": "12345678901",
+      "documentType": "cpf",
+      "email": "carlos@email.com",
+      "phoneNumber": "11999999999",
+      "address": {
+        "address1": "Av. Brasil, 500",
+        "neighboor": "Centro",
+        "zipCode": "01234-567",
+        "city": "São Paulo",
+        "state": "SP",
+        "country": "BR"
+      }
+    },
+    "items": [{
+      "tangible": false,
+      "title": "E-book",
+      "unitPrice": 10000,
+      "quantity": 1
+    }],
+    "splits": [{
+      "coProducerEmail": "coprod1@email.com",
+      "percentage": 30
+    }, {
+      "coProducerEmail": "coprod2@email.com",
+      "percentage": 20
+    }],
+    "postbackUrl": "https://meusite.com/webhook"
   }'
 ```
