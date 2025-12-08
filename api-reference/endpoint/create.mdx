@@ -123,6 +123,26 @@ openapi: 'POST /pay/payments'
   </ParamField>
 </ParamField>
 
+<ParamField body="UTMSource" type="string">
+  UTM Source para rastreamento de origem (opcional)
+</ParamField>
+
+<ParamField body="UTMMedium" type="string">
+  UTM Medium para rastreamento de mídia (opcional)
+</ParamField>
+
+<ParamField body="UTMCampaign" type="string">
+  UTM Campaign para rastreamento de campanha (opcional)
+</ParamField>
+
+<ParamField body="UTMTerm" type="string">
+  UTM Term para rastreamento de termo (opcional)
+</ParamField>
+
+<ParamField body="UTMContent" type="string">
+  UTM Content para rastreamento de conteúdo (opcional)
+</ParamField>
+
 ---
 
 ## 💰 Splits de Pagamento
@@ -333,6 +353,11 @@ curl -X POST https://api-v2.orbitapay.com.br/pay/payments \
       "coProducerEmail": "coprod2@email.com",
       "percentage": 20
     }],
+    "UTMSource": "google",
+    "UTMMedium": "cpc",
+    "UTMCampaign": "black_friday",
+    "UTMTerm": "ebook_vendas",
+    "UTMContent": "banner_principal",
     "postbackUrl": "https://meusite.com/webhook"
   }'
 ```

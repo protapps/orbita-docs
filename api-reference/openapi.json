@@ -187,6 +187,31 @@
               "$ref": "#/components/schemas/Split"
             },
             "description": "Lista de splits para divisão de pagamento entre co-produtores"
+          },
+          "UTMSource": {
+            "type": "string",
+            "nullable": true,
+            "description": "UTM Source para rastreamento de origem"
+          },
+          "UTMMedium": {
+            "type": "string",
+            "nullable": true,
+            "description": "UTM Medium para rastreamento de mídia"
+          },
+          "UTMCampaign": {
+            "type": "string",
+            "nullable": true,
+            "description": "UTM Campaign para rastreamento de campanha"
+          },
+          "UTMTerm": {
+            "type": "string",
+            "nullable": true,
+            "description": "UTM Term para rastreamento de termo"
+          },
+          "UTMContent": {
+            "type": "string",
+            "nullable": true,
+            "description": "UTM Content para rastreamento de conteúdo"
           }
         }
       },
