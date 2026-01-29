@@ -1,6 +1,6 @@
 ---
-title: 'Documentação API'
-description: 'API de Pagamentos - Documentação completa'
+title: "Documentação API"
+description: "API de Pagamentos - Documentação completa"
 ---
 
 # 📱 API de Pagamentos - Documentação
@@ -15,7 +15,7 @@ A API de pagamentos do Orbita permite processar pagamentos através de múltiplo
 
 ### **POST** `/pay/payments`
 
-Inicializa um novo pagamento. API_KEY gerada dentro da plataforma em https://app-v2.orbitapay.com.br/apps
+Inicializa um novo pagamento. API_KEY gerada dentro da plataforma em [https://app.orbitapay.com.br/apps](https://app.orbitapay.com.br/appss)
 
 **Headers Obrigatórios:**
 
@@ -31,16 +31,16 @@ Authorization: Bearer {API_KEY}
 ### Obrigatórios
 
 - `paymentMethod` - Método de pagamento
-- `amount` - Valor em centavos (ex: 10000 = R$ 100,00)
+- `amount` - Valor em centavos (ex: 10000 = R\$ 100,00)
 - `currency` - Moeda (sempre "BRL")
 - `paymentDetails` - Dados do pagador
-    - `firstName` - Nome
-    - `lastName` - Sobrenome
-    - `document` - CPF/CNPJ
-    - `documentType` - Tipo do documento
-    - `email` - E-mail
-    - `phoneNumber` - Telefone
-    - `address` - Endereço completo
+  - `firstName` - Nome
+  - `lastName` - Sobrenome
+  - `document` - CPF/CNPJ
+  - `documentType` - Tipo do documento
+  - `email` - E-mail
+  - `phoneNumber` - Telefone
+  - `address` - Endereço completo
 
 ### Opcionais
 
@@ -62,17 +62,17 @@ O sistema envia webhooks para `postbackUrl` quando o status da transação muda.
 
 ### Status Possíveis
 
-| Status | Descrição |
-| --- | --- |
-| `initial` | Transação iniciada |
-| `pending` | Aguardando pagamento |
-| `approved` | Pagamento aprovado |
-| `declined` | Pagamento recusado |
-| `refund` | Estorno processado |
+| Status       | Descrição            |
+| ------------ | -------------------- |
+| `initial`    | Transação iniciada   |
+| `pending`    | Aguardando pagamento |
+| `approved`   | Pagamento aprovado   |
+| `declined`   | Pagamento recusado   |
+| `refund`     | Estorno processado   |
 | `chargeback` | Chargeback realizado |
-| `expired` | Pagamento expirado |
-| `paid` | Pagamento confirmado |
-| `cancelled` | Pagamento cancelado |
+| `expired`    | Pagamento expirado   |
+| `paid`       | Pagamento confirmado |
+| `cancelled`  | Pagamento cancelado  |
 
 ---
 
@@ -99,12 +99,12 @@ O sistema envia webhooks para `postbackUrl` quando o status da transação muda.
 
 ## ⚠️ Códigos de Erro
 
-| Código | Descrição |
-| --- | --- |
-| `400` | Dados inválidos na requisição |
-| `401` | API Key inválida ou ausente |
-| `422` | Erro de validação dos dados |
-| `500` | Erro interno do servidor |
+| Código | Descrição                     |
+| ------ | ----------------------------- |
+| `400`  | Dados inválidos na requisição |
+| `401`  | API Key inválida ou ausente   |
+| `422`  | Erro de validação dos dados   |
+| `500`  | Erro interno do servidor      |
 
 ---
 
@@ -121,7 +121,7 @@ Para receber notificações de mudança de status:
 
 ## 📝 Observações Importantes
 
-- **Valores**: Sempre informar em centavos (ex: R$ 100,00 = 10000)
+- **Valores**: Sempre informar em centavos (ex: R\$ 100,00 = 10000)
 - **Telefone**: Apenas números, sem formatação
 - **Documentos**: CPF com 11 dígitos, CNPJ com 14 dígitos
 
@@ -130,4 +130,3 @@ Para receber notificações de mudança de status:
 ## Autenticação
 
 Todos os tokens de autenticação são gerados na plataforma em https://app-v2.orbitapay.com.br/apps
-
