@@ -11,11 +11,15 @@ A API de pagamentos do Orbita permite processar pagamentos através de múltiplo
 
 ---
 
-## 🔗 Endpoint Principal
+## 🔗 Endpoints
 
 ### **POST** `/pay/payments`
 
 Inicializa um novo pagamento. API_KEY gerada dentro da plataforma em [https://app.orbitapay.com.br/apps](https://app.orbitapay.com.br/appss)
+
+### **GET** `/pay/payments/{transactionId}`
+
+Consulta os detalhes de um pagamento existente pelo ID da transação.
 
 **Headers Obrigatórios:**
 
@@ -90,7 +94,12 @@ O sistema envia webhooks para `postbackUrl` quando o status da transação muda.
 - **Boleto**: Gera código de barras do boleto
 - **Cartão**: Processa pagamento imediatamente
 
-### 3. Notificação
+### 3. Consulta
+
+- **GET** `/pay/payments/{transactionId}` para consultar status e detalhes
+- Retorna informações completas: status, cliente, produtos, dados de pagamento e timestamps
+
+### 4. Notificação
 
 - Sistema envia webhook para `postbackUrl` quando status muda
 - Webhook contém `transactionId` e novo `status`

@@ -22,6 +22,7 @@
         "group": "Endpoints",
         "pages": [
           "api-reference/endpoint/create",
+          "api-reference/endpoint/get-payment",
           "api-reference/endpoint/webhook"
         ]
       }

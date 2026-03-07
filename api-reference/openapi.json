@@ -96,6 +96,67 @@
           }
         }
       }
+    },
+    "/pay/payments/{transactionId}": {
+      "get": {
+        "summary": "Consultar pagamento",
+        "description": "Consulta os detalhes de um pagamento existente pelo ID da transação",
+        "operationId": "getPayment",
+        "parameters": [
+          {
+            "name": "transactionId",
+            "in": "path",
+            "required": true,
+            "description": "ID único da transação (UUID)",
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Detalhes do pagamento",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetPaymentResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "API Key inválida ou ausente",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Transação não encontrada",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Erro interno do servidor",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "webhooks": {
@@ -513,6 +574,184 @@
                 "description": "UTM Content"
               }
             }
+          }
+        }
+      },
+      "GetPaymentResponse": {
+        "type": "object",
+        "properties": {
+          "transactionId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "ID único da transação"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "initial",
+              "pending",
+              "approved",
+              "declined",
+              "refund",
+              "chargeback",
+              "expired",
+              "paid",
+              "cancelled"
+            ],
+            "description": "Status atual da transação"
+          },
+          "amount": {
+            "type": "string",
+            "description": "Valor da transação (ex: \"2430.00\")"
+          },
+          "currency": {
+            "type": "string",
+            "enum": ["BRL"],
+            "description": "Moeda da transação"
+          },
+          "paymentMethod": {
+            "type": "string",
+            "enum": ["PIX", "BOLETO", "CREDIT_CARD"],
+            "description": "Método de pagamento utilizado"
+          },
+          "customer": {
+            "type": "object",
+            "description": "Dados do cliente",
+            "properties": {
+              "name": {
+                "type": "string",
+                "description": "Nome do cliente"
+              },
+              "email": {
+                "type": "string",
+                "format": "email",
+                "description": "E-mail do cliente"
+              },
+              "document": {
+                "type": "string",
+                "description": "CPF/CNPJ do cliente"
+              },
+              "phone": {
+                "type": "string",
+                "description": "Telefone do cliente"
+              }
+            }
+          },
+          "pix": {
+            "type": "object",
+            "nullable": true,
+            "description": "Dados do PIX (presente quando paymentMethod = PIX)",
+            "properties": {
+              "qrCode": {
+                "type": "string",
+                "format": "uri",
+                "description": "URL da imagem do QR Code PIX"
+              },
+              "code": {
+                "type": "string",
+                "description": "Código PIX copia e cola"
+              }
+            }
+          },
+          "boleto": {
+            "type": "object",
+            "nullable": true,
+            "description": "Dados do boleto (presente quando paymentMethod = BOLETO)",
+            "properties": {
+              "code": {
+                "type": "string",
+                "description": "Código de barras do boleto"
+              },
+              "url": {
+                "type": "string",
+                "format": "uri",
+                "description": "URL do boleto"
+              }
+            }
+          },
+          "products": {
+            "type": "array",
+            "description": "Produtos associados à transação",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "format": "uuid",
+                  "description": "ID do produto"
+                },
+                "name": {
+                  "type": "string",
+                  "description": "Nome do produto"
+                },
+                "quantity": {
+                  "type": "integer",
+                  "description": "Quantidade"
+                },
+                "price": {
+                  "type": "string",
+                  "description": "Preço unitário"
+                },
+                "total": {
+                  "type": "number",
+                  "description": "Valor total do item"
+                }
+              }
+            }
+          },
+          "utm": {
+            "type": "object",
+            "description": "Dados de rastreamento UTM",
+            "properties": {
+              "source": {
+                "type": "string",
+                "nullable": true,
+                "description": "UTM Source"
+              },
+              "medium": {
+                "type": "string",
+                "nullable": true,
+                "description": "UTM Medium"
+              },
+              "campaign": {
+                "type": "string",
+                "nullable": true,
+                "description": "UTM Campaign"
+              },
+              "term": {
+                "type": "string",
+                "nullable": true,
+                "description": "UTM Term"
+              },
+              "content": {
+                "type": "string",
+                "nullable": true,
+                "description": "UTM Content"
+              }
+            }
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Data e hora de criação da transação"
+          },
+          "paidAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true,
+            "description": "Data e hora de confirmação do pagamento"
+          },
+          "refundedAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true,
+            "description": "Data e hora do estorno"
+          },
+          "chargebackAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true,
+            "description": "Data e hora do chargeback"
           }
         }
       },
